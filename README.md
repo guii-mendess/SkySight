@@ -8,8 +8,8 @@ transmissor** e um **drone quadricóptero**, que comunicam por rádio a 2.4GHz.
 
 ## Estrutura do repositório
 
-- `comando/` — Código do comando transmissor (Arduino Nano)
-- `drone/` — Firmware do drone recetor (Arduino Pro Micro, baseado em MultiWii)
+- `código comando/` — Código do comando transmissor (Arduino Nano)
+- `código drone/` — Firmware do drone recetor (Arduino Pro Micro, baseado em MultiWii)
 
 ## Hardware
 
