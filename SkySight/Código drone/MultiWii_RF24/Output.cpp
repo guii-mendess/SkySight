@@ -326,7 +326,7 @@ void writeMotors() { // [1000;2000] => [125;250]
         #elif defined(EXT_MOTOR_8KHZ)
           OCR1A = (motor[0]-1000) << 1;   //  pin 9
         #else
-          OCR1A = motor[0]<<3; //  pin 9
+          OCR1A = (motor[0]-1000)<<4; //  pin 9
         #endif
       #endif
     #endif
@@ -342,14 +342,14 @@ void writeMotors() { // [1000;2000] => [125;250]
       #elif defined(EXT_MOTOR_8KHZ)
         OCR1B = (motor[1]-1000) << 1;   //  pin 10
       #else
-        OCR1B = motor[1]<<3; //  pin 10
+        OCR1B = (motor[1]-1000)<<4; //  pin 10
       #endif
     #endif
     #if (NUMBER_MOTOR > 2) // Timer 4 A & D [1000:2000] => [1000:2000]
       #if !defined(HWPWM6)
         // to write values > 255 to timer 4 A/B we need to split the bytes
         #ifndef EXT_MOTOR_RANGE 
-          TC4H = (2047-motor[2])>>8; OCR4A = ((2047-motor[2])&0xFF); //  pin 5
+          TC4H = (2047-((motor[2]-1000)<<1))>>8; OCR4A = ((2047-((motor[2]-1000)<<1))&0xFF); //  pin 5  - SkySight: brushed (1000->parado)
         #else
           TC4H = 2047-(((motor[2]-1000)<<1)+16)>>8; OCR4A = (2047-(((motor[2]-1000)<<1)+16)&0xFF); //  pin 5
         #endif
@@ -387,7 +387,7 @@ void writeMotors() { // [1000;2000] => [125;250]
         TC4H = Temp2 >> 8;
         OCR4D = Temp2 & 0xFF;           //  pin 6
       #else
-        TC4H = motor[3]>>8; OCR4D = (motor[3]&0xFF); //  pin 6
+        TC4H = ((motor[3]-1000)<<1)>>8; OCR4D = (((motor[3]-1000)<<1)&0xFF); //  pin 6  - SkySight: brushed (1000->parado)
       #endif
     #endif    
     #if (NUMBER_MOTOR > 4)
@@ -1079,23 +1079,22 @@ void initializeServo() {
   /****************               Motor SW PWM ISR's                 ******************/
   // hexa with old but sometimes better SW PWM method
   // for setups without servos
-  int adjustmentFactor = 1;
   #if defined(NRF24_RX) || ((NUMBER_MOTOR == 6) && (!defined(SERVO) && !defined(HWPWM6)))
     ISR(SOFT_PWM_ISR1) { 
     static uint8_t state = 0;
     if(state == 0){
         if (atomicPWM_PIN5_highState>0) SOFT_PWM_1_PIN_HIGH;
-        SOFT_PWM_CHANNEL1 += (atomicPWM_PIN5_highState * adjustmentFactor);
+        SOFT_PWM_CHANNEL1 += atomicPWM_PIN5_highState;
         state = 1;
     } else if(state == 1){
-        SOFT_PWM_CHANNEL1 += (atomicPWM_PIN5_highState * adjustmentFactor);
+        SOFT_PWM_CHANNEL1 += atomicPWM_PIN5_highState;
         state = 2;
     } else if(state == 2){
         SOFT_PWM_1_PIN_LOW;
-        SOFT_PWM_CHANNEL1 += (atomicPWM_PIN5_lowState * adjustmentFactor);
+        SOFT_PWM_CHANNEL1 += atomicPWM_PIN5_lowState;
         state = 3;  
     } else if(state == 3){
-        SOFT_PWM_CHANNEL1 += (atomicPWM_PIN5_lowState * adjustmentFactor);
+        SOFT_PWM_CHANNEL1 += atomicPWM_PIN5_lowState;
         state = 0;   
     }
 }
@@ -1103,17 +1102,17 @@ void initializeServo() {
       static uint8_t state = 0;
       if(state == 0){
         if (atomicPWM_PIN6_highState>0) SOFT_PWM_2_PIN_HIGH;
-        SOFT_PWM_CHANNEL2 += (atomicPWM_PIN6_highState * adjustmentFactor);
+        SOFT_PWM_CHANNEL2 += atomicPWM_PIN6_highState;
         state = 1;
       }else if(state == 1){
-        SOFT_PWM_CHANNEL2 += (atomicPWM_PIN6_highState * adjustmentFactor);
+        SOFT_PWM_CHANNEL2 += atomicPWM_PIN6_highState;
         state = 2;
       }else if(state == 2){
         SOFT_PWM_2_PIN_LOW;
-        SOFT_PWM_CHANNEL2 += (atomicPWM_PIN6_lowState * adjustmentFactor);
+        SOFT_PWM_CHANNEL2 += atomicPWM_PIN6_lowState;
         state = 3;  
       }else if(state == 3){
-        SOFT_PWM_CHANNEL2 += (atomicPWM_PIN6_lowState * adjustmentFactor);
+        SOFT_PWM_CHANNEL2 += atomicPWM_PIN6_lowState;
         state = 0;   
       }
     }
@@ -1124,19 +1123,19 @@ void initializeServo() {
         static uint8_t state = 0;
         if(state == 0){
           SOFT_PWM_1_PIN_HIGH;
-          SOFT_PWM_CHANNEL1 += atomicPWM_PIN5_highState * adjustmentFactor);
+          SOFT_PWM_CHANNEL1 += atomicPWM_PIN5_highState;
           state = 1;
         }else if(state == 1){
           SOFT_PWM_2_PIN_LOW;
-          SOFT_PWM_CHANNEL1 += atomicPWM_PIN6_lowState * adjustmentFactor);
+          SOFT_PWM_CHANNEL1 += atomicPWM_PIN6_lowState;
           state = 2;
         }else if(state == 2){
           SOFT_PWM_2_PIN_HIGH;
-          SOFT_PWM_CHANNEL1 += atomicPWM_PIN6_highState * adjustmentFactor);
+          SOFT_PWM_CHANNEL1 += atomicPWM_PIN6_highState;
           state = 3;  
         }else if(state == 3){
           SOFT_PWM_1_PIN_LOW;
-          SOFT_PWM_CHANNEL1 += atomicPWM_PIN5_lowState * adjustmentFactor);
+          SOFT_PWM_CHANNEL1 += atomicPWM_PIN5_lowState;
           state = 0;   
         }
       } 

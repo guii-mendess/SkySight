@@ -14,7 +14,7 @@
 
 #ifndef CONFIG_H_
 #define CONFIG_H_
-#define A32U4ALLPINS
+//#define A32U4ALLPINS
 /*************************************************************************************************/
 /****           CONFIGURABLE PARAMETERS                                                       ****/
 /*************************************************************************************************/
@@ -219,8 +219,8 @@
       // Os dois (ACC e GYRO) tem de estar coerentes entre si.
       // SkySight: montei o MPU de cabeça para baixo, por isso inverti o sinal do ROLL e do YAW (Z),
       // mantendo o ACC e o GYRO coerentes para o autonivelamento funcionar bem.
-      #define FORCE_ACC_ORIENTATION(X, Y, Z)  {imu.accADC[ROLL]  = -X; imu.accADC[PITCH]  =  Y; imu.accADC[YAW]  = -Z;}
-      #define FORCE_GYRO_ORIENTATION(X, Y, Z) {imu.gyroADC[ROLL] = -X; imu.gyroADC[PITCH] =  Y; imu.gyroADC[YAW] = -Z;}
+      #define FORCE_ACC_ORIENTATION(X, Y, Z)  {imu.accADC[ROLL]=Y; imu.accADC[PITCH]=-X; imu.accADC[YAW]=-Z;}
+      #define FORCE_GYRO_ORIENTATION(X, Y, Z) {imu.gyroADC[ROLL]=Y; imu.gyroADC[PITCH]=-X; imu.gyroADC[YAW]=-Z;}
       //#define FORCE_MAG_ORIENTATION(X, Y, Z)  {imu.magADC[ROLL]  =  X; imu.magADC[PITCH]  =  Y; imu.magADC[YAW]  = Z;}
 
       /* Board orientation shift */
